@@ -15,13 +15,41 @@ to spin up or delete machines.
 Put the following in your `knife.rb`
 
 ```ruby
-knife[:azure_tenant_id] # found via: tenantId=$(azure account show -s <subscriptionId> --json | jq -r '.[0].tenantId')
+knife[:azure_tenant_id] # found via: tenantId=$(az account show -s <subscriptionId> --json | jq -r '.[0].tenantId')
 knife[:azure_subscription_id] # found via: <subscriptionId>
-knife[:azure_client_id] # appId=$(azure ad app show --search <principleappcreated> --json | jq -r '.[0].appId')
+knife[:azure_client_id] # appId=$(az ad app show --search <principleappcreated> --json | jq -r '.[0].appId')
 knife[:azure_client_secret] # password you set at initially
 ```
 
-*Microsoft Azure encourages the use of Azure CLI 2.0. If you are still using [azure-xplat-cli](https://github.com/Azure/azure-xplat-cli) then you may simply run ```azure login``` and skip creating the service principal entirely.*
+*Microsoft Azure encourages the use of Azure CLI 2.0. If you are still using [azure-xplat-cli](https://github.com/Azure/azure-xplat-cli) then you may simply run ```az login``` and skip creating the service principal entirely.* 
+
+## ASM mode
+
+For this plugin to interact with Azure's REST API, you will need to give Knife
+information about your Azure account and credentials. The easiest way to do
+this is to sign in to the Azure portal and download a publishsettings file
+from https://manage.windowsazure.com/publishsettings/index?client=xplat to a
+local file system location, and
+then refer to the local file via an entry in your knife.rb:
+
+    knife[:azure_publish_settings_file] = "~/myazure.publishsettings"
+
+Alternatively, all subcommands for this plugin will accept an
+--azure-publish-settings-file option to allow you to specify the path to that
+file with each command invocation.
+
+The plug-in also accepts authentication information specified using an
+alternative set of options -- see the section on [Alternative Management
+Certificate Specification] (#alternative-management-certificate-specification) for details.
+
+The plug-in can also read Azure account and credentials from the `Azure Profile` if Knife does not have the entry for `publish_settings_file`.
+An `Azure Profile` is a `JSON` file with subscription and environment information in it. Its default location is `~/.azure/azureProfile.json`.
+
+The Azure Profile file can be created and manipulated using the [Azure CLI](http://azure.microsoft.com/en-us/documentation/articles/virtual-machines-command-line-tools/). You can
+also refer [Azure Xplat-CLI](https://github.com/Azure/azure-xplat-cli#use-publish-settings-file-management-certificate-authentication).
+
+If Azure Profile file has entries for multiple subscriptions then you can choose the default using `az account set <subscription_name>`. The same default subscription will
+be picked up that you have configured.
 
 ## Alternative Management Certificate Specification
 
